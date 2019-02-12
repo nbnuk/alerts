@@ -15,7 +15,6 @@ package au.org.ala.alerts
 
 import au.org.ala.web.UserDetails
 import grails.converters.JSON
-import grails.plugin.cache.Cacheable
 
 class UserService {
 
@@ -38,13 +37,19 @@ class UserService {
         def allAlertTypes = Query.findAllByCustom(false)
 
         allAlertTypes.removeAll { enabledIds.contains(it.id) }
+
+        //NBN hide these types of alerts
+        allAlertTypes.removeAll { it.name == 'New images' || it.name == 'Citizen science records with images' || it.name == 'Blogs and News' }
+        enabledQueries.removeAll { it.name == 'Blogs and News' } //force remove this as it was turned on by default; other hidden entries that the user has previously turned on will be shown though
+
         def customQueries = enabledQueries.findAll { it.custom }
         def standardQueries = enabledQueries.findAll { !it.custom }
 
+        def freqNotHourly = Frequency.withCriteria {ne('name','hourly')}
         [disabledQueries: allAlertTypes,
          enabledQueries : standardQueries,
          customQueries  : customQueries,
-         frequencies    : Frequency.listOrderByPeriodInSeconds(),
+         frequencies    : freqNotHourly, //.listOrderByPeriodInSeconds(),
          user           : user]
     }
 
@@ -128,10 +133,11 @@ class UserService {
             user = new User([email: userDetails["email"], userId: userDetails["userId"], frequency: Frequency.findByName("weekly")])
             user.save(flush:true, failOnError: true)
             // new user gets "Blogs and News" by default (opt out)
-            def notificationInstance = new Notification()
-            notificationInstance.query = Query.findByName("Blogs and News") //Query.findById(params.id)
-            notificationInstance.user = user
-            notificationInstance.save(flush: true)
+            //NBN removed
+            //def notificationInstance = new Notification()
+            //notificationInstance.query = Query.findByName("Blogs and News") //Query.findById(params.id)
+            //notificationInstance.user = user
+            //notificationInstance.save(flush: true)
         }
         user
     }
@@ -144,11 +150,11 @@ class UserService {
         User.findAllByEmailIlike("%${term}%")
     }
 
-    @Cacheable("testCache")
+    /* @Cacheable("testCache")
     boolean testEhCache(String input = "not-set") {
         log.warn "Inside the testEhCache() method with ${input}... sleeping for 5 seconds"
         sleep(5000)
         log.warn "Exiting testEhCache() method"
         true
-    }
+    } */
 }

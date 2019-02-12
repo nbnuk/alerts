@@ -184,10 +184,10 @@ class AdminController {
             allAlertTypes.removeAll { enabledIds.contains(it.id) }
             def customQueries = enabledQueries.findAll { it.custom }
             def standardQueries = enabledQueries.findAll { !it.custom }
-
+            def freqNotHourly = Frequency.withCriteria {ne('name','hourly')}
             render(view: "../notification/myAlerts", model: [disabledQueries: allAlertTypes,
                                                              enabledQueries : standardQueries, customQueries: customQueries,
-                                                             frequencies    : Frequency.listOrderByPeriodInSeconds(),
+                                                             frequencies    : freqNotHourly,
                                                              user           : user,
                                                              adminUser      : authService.userDetails()
             ])
@@ -273,45 +273,5 @@ class AdminController {
         log.debug "#sendTestEmail - msg = ${msg}"
         flash.message = msg
         redirect(action: "index")
-    }
-
-    /**
-     * Utility method to fix broken unsubscribe links in email, where the unsubscribe link
-     * has '?token=NULL'. 
-     *
-     * @return
-     */
-    def repairNotificationsWithoutUnsubscribeToken() {
-        List notifications = Notification.findAllByUnsubscribeTokenIsNull()
-        def count = 0
-
-        notifications.each { Notification notification ->
-            notification.unsubscribeToken = UUID.randomUUID().toString()
-            notification.save(flush:true)
-            count++
-        }
-
-        flash.message = "Updated ${count} notification entries with new unsubscribeToken value (was NULL)."
-        redirect(action: 'index')
-    }
-
-    /**
-     * Utility method to fix broken unsubscribe links in email, where the "unsubscribe all" link
-     * has '?token=NULL'.
-     *
-     * @return
-     */
-    def repairUsersWithoutUnsubscribeToken() {
-        List users = User.findAllByUnsubscribeTokenIsNull()
-        def count = 0
-
-        users.each { User user ->
-            user.unsubscribeToken = UUID.randomUUID().toString()
-            user.save(flush:true)
-            count++
-        }
-
-        flash.message = "Updated ${count} user entries with new unsubscribeToken value (was NULL)."
-        redirect(action: 'index')
     }
 }

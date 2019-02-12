@@ -15,7 +15,7 @@
       <div id="content">
           <header id="page-header">
             <div class="inner row-fluid">
-              <h1>${userPrefix} email alert</h1>
+              <h1>${userPrefix} email alerts</h1>
             </div>
           </header>
           <g:if test="${flash.message}">
@@ -74,7 +74,7 @@
                                   ${query.description}
                                 </td>
                                 <td class="queryActions">
-                                    <a href="javascript:void(0);" class='btn btn-ala deleteButton' id='${query.id}'>Delete</a>
+                                    <a href="javascript:void(0);" class='btn-ala btn deleteButton' id='${query.id}'>Delete</a>
                                 </td>
                             </tr>
                         </g:each>

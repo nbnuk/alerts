@@ -86,6 +86,7 @@ class QueryService {
 
   /**
    * Takes a URL of the form "/ws/occurrences/search?......"
+   * NBN *** removed /ws/ because our records-ws.nbnatlas.org doesn't have this
    *
    * @param biocacheWebserviceQueryPath
    * @return
@@ -153,7 +154,7 @@ class QueryService {
       resourceName:  grailsApplication.config.postie.defaultResourceName,
       updateMessage: 'More occurrence records have been added for ' + taxonName,
       description: 'Notify me when new records are added for ' + taxonName,
-      queryPath: '/ws/occurrences/taxon/'+ taxonGuid + '?fq=first_loaded_date:[___DATEPARAM___%20TO%20*]&sort=first_loaded_date&dir=desc&pageSize=20&facets=basis_of_record',
+      queryPath: '/occurrences/taxon/'+ taxonGuid + '?fq=first_loaded_date:[___DATEPARAM___%20TO%20*]&sort=first_loaded_date&dir=desc&pageSize=20&facets=basis_of_record',
       queryPathForUI: '/occurrences/taxa/'+ taxonGuid + '?fq=first_loaded_date:[___DATEPARAM___%20TO%20*]&sort=first_loaded_date&dir=desc',
       dateFormat: """yyyy-MM-dd'T'HH:mm:ss'Z'""",
       emailTemplate: '/email/biocache',
@@ -171,7 +172,7 @@ class QueryService {
       resourceName:  grailsApplication.config.postie.defaultResourceName,
       updateMessage: 'More occurrence records have been added for ' + taxonName + ' recorded in ' + regionName,
       description: 'Notify me when new records are added for ' + taxonName + ' recorded in ' + regionName,
-      queryPath: '/ws/occurrences/taxon/'+ taxonGuid +'?' + layerId + ':%22'+regionName.encodeAsURL()+'%22&fq=first_loaded_date:[___DATEPARAM___%20TO%20*]&sort=first_loaded_date&dir=desc&pageSize=20&facets=basis_of_record',
+      queryPath: '/occurrences/taxon/'+ taxonGuid +'?' + layerId + ':%22'+regionName.encodeAsURL()+'%22&fq=first_loaded_date:[___DATEPARAM___%20TO%20*]&sort=first_loaded_date&dir=desc&pageSize=20&facets=basis_of_record',
       queryPathForUI: '/occurrences/taxa/'+ taxonGuid +'?' + layerId + ':%22'+regionName.encodeAsURL()+'%22&fq=first_loaded_date:[___DATEPARAM___%20TO%20*]&sort=first_loaded_date&dir=desc',
       dateFormat: """yyyy-MM-dd'T'HH:mm:ss'Z'""",
       emailTemplate: '/email/biocache',
@@ -189,7 +190,7 @@ class QueryService {
       resourceName:  grailsApplication.config.postie.defaultResourceName,
       updateMessage: 'More occurrence records have been added for ' + speciesGroup + ' recorded in ' + regionName,
       description: 'Notify me when new records are added for ' + speciesGroup + ' recorded in ' + regionName,
-      queryPath: '/ws/occurrences/search?q='+layerId+':%22'+regionName.encodeAsURL()+'%22&fq=species_group:'+speciesGroup+'&fq=first_loaded_date:[___DATEPARAM___%20TO%20*]&sort=first_loaded_date&dir=desc&pageSize=20&facets=basis_of_record',
+      queryPath: '/occurrences/search?q='+layerId+':%22'+regionName.encodeAsURL()+'%22&fq=species_group:'+speciesGroup+'&fq=first_loaded_date:[___DATEPARAM___%20TO%20*]&sort=first_loaded_date&dir=desc&pageSize=20&facets=basis_of_record',
       queryPathForUI: '/occurrences/search?q='+layerId+':"'+regionName.encodeAsURL()+'"&fq=species_group:'+speciesGroup+'&fq=first_loaded_date:[___DATEPARAM___%20TO%20*]&sort=first_loaded_date&dir=desc',
       dateFormat: """yyyy-MM-dd'T'HH:mm:ss'Z'""",
       emailTemplate: '/email/biocache',
@@ -207,7 +208,7 @@ class QueryService {
       resourceName:  grailsApplication.config.postie.defaultResourceName,
       updateMessage: 'More occurrence records have been added for ' + regionName,
       description: 'Notify me when new records are added for ' + regionName,
-      queryPath: '/ws/occurrences/search?q='+ layerId+':%22' + regionName.encodeAsURL() +'%22&fq=first_loaded_date:[___DATEPARAM___%20TO%20*]&sort=first_loaded_date&dir=desc&pageSize=20&facets=basis_of_record',
+      queryPath: '/occurrences/search?q='+ layerId+':%22' + regionName.encodeAsURL() +'%22&fq=first_loaded_date:[___DATEPARAM___%20TO%20*]&sort=first_loaded_date&dir=desc&pageSize=20&facets=basis_of_record',
       queryPathForUI: '/occurrences/search?q='+ layerId+':%22' + regionName.encodeAsURL() +'%22&fq=first_loaded_date:[___DATEPARAM___%20TO%20*]&sort=first_loaded_date&dir=desc',
       dateFormat: """yyyy-MM-dd'T'HH:mm:ss'Z'""",
       emailTemplate: '/email/biocache',

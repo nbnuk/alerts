@@ -53,6 +53,8 @@ grails {
     exploded = true
     plugins {
         //compile project(":ala-admin-plugin") // inline plugin use only 
+        //compile project(":ala-bootstrap3")
+        //compile project(':ala-auth')
     }
 }
 
@@ -66,7 +68,7 @@ dependencies {
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.grails:grails-core"
     compile "org.springframework.boot:spring-boot-starter-actuator"
-    compile "org.springframework.boot:spring-boot-starter-tomcat"
+    provided "org.springframework.boot:spring-boot-starter-tomcat"
     compile "org.grails:grails-web-boot"
     compile "org.grails:grails-logging"
     compile "org.grails:grails-plugin-rest"
@@ -98,10 +100,10 @@ dependencies {
     testCompile "org.grails:grails-test-mixins:3.3.0"
 
     // Grails plugin dependencies
-    runtime "org.grails.plugins:ala-bootstrap3:3.0.1", noCache
+    runtime "org.grails.plugins:ala-bootstrap3:3.0.6", noCache
     compile "org.grails.plugins:ala-ws-security-plugin:2.0", noCache
     compile "org.grails.plugins:ala-ws-plugin:2.0", noCache
-    compile "org.grails.plugins:ala-auth:3.1.0", noCache
+    compile "org.grails.plugins:ala-auth:3.0.2", noCache //*** NBN RR our live version is using 1.3.1
     compile "org.grails.plugins:ala-admin-plugin:2.1"
     //compile 'au.org.ala:userdetails-service-client:1.4.0' // TODO remove this line once updated version is included in ala-auth
     
