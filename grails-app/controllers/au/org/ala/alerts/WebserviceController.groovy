@@ -22,6 +22,7 @@ class WebserviceController {
 
     def queryService
     def userService
+    def authService
 
     def index = {}
     def test = {}
@@ -214,11 +215,32 @@ class WebserviceController {
     def createBiocacheNewAnnotationsAlert = {
         log.debug("Create biocache new annotations alert for " + params.resourceName ?: "all resources")
         //biocacheWebserviceQueryPath, String biocacheUIQueryPath, String queryDisplayName
+        def error = ""
         if (params.webserviceQuery && params.uiQuery && params.queryDisplayName) {
             //region + species group
             Query newQuery = queryService.createBioCacheAnnotationQuery(params.webserviceQuery, params.uiQuery, params.queryDisplayName, params.baseUrlForWS, params.baseUrlForUI, params.resourceName)
-            queryService.createQueryForUserIfNotExists(newQuery, userService.getUser())
-            redirectIfSupplied(params)
+            if (params.userId) {
+                def user = User.findByUserId(params.userId)
+                if (!user) {
+                    //response.sendError(400)
+                    error = """Error: could not find user to subscribe for record annotations alerts"""
+                } else {
+                    if (authService.userInRole("ROLE_ADMIN") && (grailsApplication.config.security?.adminManageAlertsForOthers?:false).asBoolean()) {
+                        queryService.createQueryForUserIfNotExists(newQuery, user)
+                    } else {
+                        //the config needs to explicitly permit this
+                        //response.sendError(403)
+                        error = """Error: either you are not an administrator or Alerts have not been configured to allow this"""
+                    }
+                }
+            } else {
+                queryService.createQueryForUserIfNotExists(newQuery, userService.getUser())
+            }
+            if (error == "") {
+                redirectIfSupplied(params)
+            } else {
+                render(view: 'index', model: [message: error])
+            }
         } else {
             response.sendError(400)
         }
