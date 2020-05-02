@@ -364,6 +364,24 @@ class WebserviceController {
         redirectIfSupplied(params)
     }
 
+    def getUserAlertsOutsideCAS() {
+        if (!params.userId) {
+            response.status = HttpStatus.SC_BAD_REQUEST
+            response.sendError(HttpStatus.SC_BAD_REQUEST, "userId is a required parameter")
+        } else {
+            def user = User.findByUserId(params.userId)
+            if (!user) {
+                response.status = HttpStatus.SC_BAD_REQUEST
+                response.sendError(HttpStatus.SC_BAD_REQUEST, "userId not found")
+            } else {
+                response.status = HttpStatus.SC_OK
+                def notificationInstanceList = Notification.findAllByUser(user)
+                def enabledQueries = notificationInstanceList.collect { it.query?.name }
+                render(enabledQueries as JSON)
+            }
+        }
+    }
+
     @RequireApiKey
     def deleteAllAlertsForUser() {
         if (!params.userId) {
