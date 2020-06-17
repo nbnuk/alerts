@@ -225,7 +225,7 @@ class WebserviceController {
                     //response.sendError(400)
                     error = """Error: could not find user to subscribe for record annotations alerts"""
                 } else {
-                    if (authService.userInRole("ROLE_ADMIN") && (grailsApplication.config.security?.adminManageAlertsForOthers?:false).asBoolean()) {
+                    if (authService.userInRole("ROLE_ADMIN") && (grailsApplication.config.security?.adminManageAlertsForOthers?:"false").toBoolean()) {
                         queryService.createQueryForUserIfNotExists(newQuery, user)
                     } else {
                         //the config needs to explicitly permit this
