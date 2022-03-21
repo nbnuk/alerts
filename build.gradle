@@ -148,15 +148,14 @@ assets {
 
 publishing {
     repositories {
-//        maven {
-//            name 'Nexus'
-//            url "https://repository.gbif.org/repository/${project.version.endsWith('-SNAPSHOT') ? 'uk-nbn-snapshots' : 'uk-nbn-releases' }"
-//            credentials {
-//                username = System.getenv('TRAVIS_DEPLOY_USERNAME')
-//                password = System.getenv('TRAVIS_DEPLOY_PASSWORD')
-//            }
-//        }
-        mavenLocal()
+        maven {
+            name 'Nexus'
+            url "https://repository.gbif.org/repository/${project.version.endsWith('-SNAPSHOT') ? 'uk-nbn-snapshots' : 'uk-nbn-releases' }"
+            credentials {
+                username = System.getenv('TRAVIS_DEPLOY_USERNAME')
+                password = System.getenv('TRAVIS_DEPLOY_PASSWORD')
+            }
+        }
     }
     publications {
         mavenJar(MavenPublication) {
