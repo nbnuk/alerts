@@ -43,7 +43,6 @@ class UrlMappings {
         // /api/* will not be protected by CAS, but all operations should be protected with @RequireApiKey
         "/api/alerts/user/$userId/unsubscribe"(controller: 'webservice', action: [POST: 'deleteAllAlertsForUser'])
         "/api/alerts/user/createAlerts"(controller: 'webservice', action: [POST: 'createUserAlerts'])
-        "/wsopen/alerts/user/$userId"(controller: 'webservice', action: [GET: 'getUserAlertsOutsideCAS'])
 
         "/robots.txt"(view:'/notFound')
         "400"(view:'/error')
