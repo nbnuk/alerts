@@ -184,7 +184,7 @@ class AdminController {
             allAlertTypes.removeAll { enabledIds.contains(it.id) }
             def customQueries = enabledQueries.findAll { it.custom }
             def standardQueries = enabledQueries.findAll { !it.custom }
-            def freqNotHourly = Frequency.withCriteria {ne('name','hourly')}
+            def freqNotHourly = Frequency.listOrderByPeriodInSeconds()
             render(view: "../notification/myAlerts", model: [disabledQueries: allAlertTypes,
                                                              enabledQueries : standardQueries, customQueries: customQueries,
                                                              frequencies    : freqNotHourly,
@@ -197,6 +197,14 @@ class AdminController {
         }
 
         null
+    }
+
+    def repairNotificationsWithoutUnsubscribeToken(){
+        //FFTF: method put back but it might as well be empty as it is overwritten in alerts-nbn
+    }
+
+    def repairUsersWithoutUnsubscribeToken(){
+        //FFTF method put back but it might as well be empty as it is overwritten in alerts-nbn
     }
 
     /**

@@ -28,7 +28,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "1.4.17"
 }
 
-version "1.0.0-NBN-FFTF-SNAPSHOT"
+version "1.0.1-NBN-FFTF-SNAPSHOT"
 group "au.org.ala"
 
 apply plugin:"eclipse"
@@ -148,14 +148,15 @@ assets {
 
 publishing {
     repositories {
-        maven {
-            name 'Nexus'
-            url "https://repository.gbif.org/repository/${project.version.endsWith('-SNAPSHOT') ? 'uk-nbn-snapshots' : 'uk-nbn-releases' }"
-            credentials {
-                username = System.getenv('TRAVIS_DEPLOY_USERNAME')
-                password = System.getenv('TRAVIS_DEPLOY_PASSWORD')
-            }
-        }
+//        maven {
+//            name 'Nexus'
+//            url "https://repository.gbif.org/repository/${project.version.endsWith('-SNAPSHOT') ? 'uk-nbn-snapshots' : 'uk-nbn-releases' }"
+//            credentials {
+//                username = System.getenv('TRAVIS_DEPLOY_USERNAME')
+//                password = System.getenv('TRAVIS_DEPLOY_PASSWORD')
+//            }
+//        }
+        mavenLocal()
     }
     publications {
         mavenJar(MavenPublication) {
