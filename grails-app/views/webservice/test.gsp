@@ -35,7 +35,7 @@
 
   <li>
     <g:link controller="webservice" action="createBiocacheNewRecordsAlert" params="${[
-            webserviceQuery:'/occurrences/search?q=*:*',
+            webserviceQuery:'/ws/occurrences/search?q=*:*',
             uiQuery:'/occurrences/search?q=*:*',
             queryDisplayName:'AVH',
             baseUrlForWS:'http://biocache.ala.org.au',
@@ -47,7 +47,7 @@
 
   <li>
     <g:link controller="webservice" action="createBiocacheNewAnnotationsAlert" params="${[
-            webserviceQuery:'/occurrences/search?q=*:*',
+            webserviceQuery:'/ws/occurrences/search?q=*:*',
             uiQuery:'/occurrences/search?q=*:*',
             queryDisplayName:'Annotations in AVH',
             baseUrlForWS:'http://biocache.ala.org.au',

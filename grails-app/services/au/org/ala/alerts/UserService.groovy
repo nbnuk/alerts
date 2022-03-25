@@ -38,14 +38,13 @@ class UserService {
         def allAlertTypes = Query.findAllByCustom(false)
 
         allAlertTypes.removeAll { enabledIds.contains(it.id) }
-
         def customQueries = enabledQueries.findAll { it.custom }
         def standardQueries = enabledQueries.findAll { !it.custom }
 
         [disabledQueries: allAlertTypes,
          enabledQueries : standardQueries,
          customQueries  : customQueries,
-         frequencies    : Frequency.withCriteria {ne('name','hourly')}, //.listOrderByPeriodInSeconds(),
+         frequencies    : Frequency.listOrderByPeriodInSeconds(),
          user           : user]
     }
 

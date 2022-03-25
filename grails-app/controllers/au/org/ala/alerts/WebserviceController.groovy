@@ -22,7 +22,6 @@ class WebserviceController {
 
     def queryService
     def userService
-    def authService
 
     def index = {}
     def test = {}

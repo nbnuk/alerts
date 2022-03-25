@@ -52,9 +52,7 @@ repositories {
 grails {
     exploded = true
     plugins {
-        //compile project(":ala-admin-plugin") // inline plugin use only 
-        //compile project(":ala-bootstrap3")
-        //compile project(':ala-auth')
+        //compile project(":ala-admin-plugin") // inline plugin use only
     }
 }
 
