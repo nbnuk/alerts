@@ -33,9 +33,9 @@ group "au.org.ala"
 
 apply plugin:"eclipse"
 apply plugin:"idea"
-apply plugin:"war"
-apply plugin:"org.grails.grails-web"
 apply plugin:"org.grails.grails-gsp"
+apply plugin:"org.grails.grails-plugin"
+apply plugin:"org.grails.grails-plugin-publish"
 apply plugin:"asset-pipeline"
 apply plugin:"maven-publish"
 
@@ -84,7 +84,7 @@ dependencies {
     compile "org.hibernate:hibernate-ehcache:5.1.16.Final"
     compile "org.grails.plugins:gsp"
     console "org.grails:grails-console"
-    profile "org.grails.profiles:web"
+    profile "org.grails.profiles:web-plugin"
     runtime "org.glassfish.web:el-impl:2.1.2-b03"
     runtime "com.h2database:h2"
     runtime "org.apache.tomcat:tomcat-jdbc"
@@ -146,15 +146,15 @@ assets {
 
 publishing {
     repositories {
-//        maven {
-//            name 'Nexus'
-//            url "https://repository.gbif.org/repository/${project.version.endsWith('-SNAPSHOT') ? 'uk-nbn-snapshots' : 'uk-nbn-releases' }"
-//            credentials {
-//                username = System.getenv('TRAVIS_DEPLOY_USERNAME')
-//                password = System.getenv('TRAVIS_DEPLOY_PASSWORD')
-//            }
-//        }
-        mavenLocal()
+        maven {
+            name 'Nexus'
+            url "https://repository.gbif.org/repository/${project.version.endsWith('-SNAPSHOT') ? 'uk-nbn-snapshots' : 'uk-nbn-releases' }"
+            credentials {
+                username = System.getenv('TRAVIS_DEPLOY_USERNAME')
+                password = System.getenv('TRAVIS_DEPLOY_PASSWORD')
+            }
+        }
+        //mavenLocal()
     }
     publications {
         mavenJar(MavenPublication) {

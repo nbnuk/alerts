@@ -1,6 +1,6 @@
 ---
 grails:
-    profile: web
+    profile: web-plugin
     cache:
         clearAtStartup: true
         ehcache:
