@@ -2,10 +2,14 @@ language: groovy
 jdk:
 - oraclejdk8
 sudo: false
+dist: trusty
 branches:
   only:
     - master
+    - master-plugin
     - hotfix
+    - develop
+    - FFTF
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
