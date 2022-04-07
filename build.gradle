@@ -28,7 +28,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "1.4.17"
 }
 
-version "1.5.1-NBN-PLUGIN"
+version "1.5.0-PLUGIN"
 group "au.org.ala"
 
 apply plugin:"eclipse"
