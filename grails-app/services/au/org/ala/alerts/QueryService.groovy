@@ -92,6 +92,10 @@ class QueryService {
    * @return
    */
   Query createBioCacheChangeQuery(String biocacheWebserviceQueryPath, String biocacheUIQueryPath, String queryDisplayName, String baseUrlForWS, String baseUrlForUI, String resourceName){
+    // truncate long name to avoid SQL error  //NOTE: fix is in the ALA version
+    if (queryDisplayName.length() >= 250) {
+      queryDisplayName = queryDisplayName.substring(0, 149) + "..."
+    }
     new Query([
       baseUrl: baseUrlForWS?:grailsApplication.config.biocache.baseURL,
       baseUrlForUI: baseUrlForUI?:grailsApplication.config.biocache.baseURL,
