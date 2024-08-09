@@ -43,12 +43,12 @@
             <li><g:link controller="admin" action="repairUsersWithoutUnsubscribeToken">Fix empty notification_token values in user table (unsubscribe all links with '?token=NULL')</g:link></li>
         </ul>
     </div>
-    <div class="panel-heading">
-        <h3>Manage Scheduling</h3>
-        <ul>
-            <li class="controller"><g:link controller="quartz">View scheduling</g:link> - Run and/or reschedule alerts.</li>
-        </ul>
-    </div>
+%{--    <div class="panel-heading">--}%
+%{--        <h3>Manage Scheduling</h3>--}%
+%{--        <ul>--}%
+%{--            <li class="controller"><g:link controller="quartz">View scheduling</g:link> - Run and/or reschedule alerts.</li>--}%
+%{--        </ul>--}%
+%{--    </div>--}%
 
     <div class="panel-heading">
         <h3>Email Management </h3>

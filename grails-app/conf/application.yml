@@ -1,6 +1,6 @@
 ---
 grails:
-    profile: web
+    profile: web-plugin
     cache:
         clearAtStartup: true
         ehcache:
@@ -256,9 +256,9 @@ userDetails:
 
 security:
     cas:
-        enabled: false
-    oidc:
         enabled: true
+    oidc:
+        enabled: false
         discoveryUri: https://auth-dev.ala.org.au/cas/oidc/.well-known
         scope: openid,profile,email,ala,roles,user_defined
 #        allowUnsignedIdTokens: true

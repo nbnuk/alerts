@@ -1,5 +1,6 @@
 package au.org.ala.alerts
 
+import au.org.ala.alerts.UnsubscribeController
 import grails.testing.gorm.DataTest
 import grails.testing.web.controllers.ControllerUnitTest
 import groovy.util.logging.Slf4j
