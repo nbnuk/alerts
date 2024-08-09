@@ -7,6 +7,7 @@ branches:
     - master
     - develop
     - feature_oidcIntegration
+    - master-nbn
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
@@ -22,6 +23,5 @@ after_success:
   - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && travis_retry ./gradlew publish'
 env:
   global:
-    - JAVA_TOOL_OPTIONS=-Dhttps.protocols=TLSv1.2
-    - secure: OqyYLYoeTw2ifeopsXEQnLDF8DA5j12iSH9mKGXjE6abkrhXCghWOtb+jGstRvJr/ZrpJfFK3VOkistgkf6y8/RYxB7a0MJsr+1GUXtdHhtPbUcShJDybj6AlbgPCI2J4VdIQSB+ey2XZKOMOO3+XwbsczrTHBh5KpBHdI7Tw8I=
-    - secure: XvAZn/Iv/HVBcR3DiDrNhOvMy4LVvrH0eM7jims9Kyhwb6YvZc8aD2MpgfR9pEcKpyy5zSx/EKYKbB6rf5tzjjEOSgCCrYfoqNB2e1/pqNnzMsblEpRC3IsHOYs7bQwckKOclQ1pP/6BzjxSKzZNQG+dQT+KhfPPmWj4Ky+hmN0=
+    - secure: dIcRABdmL3+vgaHytX93zDtmvT+LRxYYi8r6g29J7r7J6X23z5upB3ILpwBfJhJUyWGe7+vT2WDwvOSGV+oPiJwvOyM1S+tYl59JcoS16yBBgMzLnNRk8JSOptB5EvAN6WHCFlj2U+ye+ugm4V1xG1q5Kl+if1XqhTQvQcnW5aTNqrV4bkeiPgtfXj12pu76BTDnEErzH081lzcMkvvLIMdXTcWOHr7d91KLsd/lMtCpLJ/wf8Pm402rpn30y/jFwUUKPy1BFov197eEhFjCZOgBbTs9CnWYfv6ai3iFuuvvn63M6p3JBYr9F13QKc+YmKHAzsdzaz5FKn1DsExnr2MaY6YVYEB6pMXKVPMqzJ6kMI5aE9cnYxTH+ewrWDoyl1O1XZ1xVW/E849L7s87/3Tp52jp4NAnfzs1VmzWXAAkFmRy5pSzVhF9sq9nPukbApZN5bcVe+y3TkwZD0NdCNsGmJmj+GjsEh81wYjjnOkTJCPgGkIEyLrPO9SgCqBry01ysogz0LWy3tTko1baHOvvW7D5oSmMncK0N6hYNV17dTHJUKPMyTQr+qs/a3zLKujBLOtlIB6fxAiSvK7rsCRaz3oWF1C+3SaKukOZoD0HfFcUvC6DzgIrCeJdET8UnHYLVhEijmB/eLWuHe8H6CNzDJzProIwtFHeLrKxzig=
+    - secure: nqhhXVveVQQh+ZDwCSKknqbRdHH136prBkIZLsaL1qrnNyv+aVX2OPQ4Zc83wkuZln+mR/dJ8Bcy1sli4BXOoxUufd+Vj9+wkiboFLZeOIJjR0kSOBovTe7Ap127oA5CNT4mVW8Lkrmzril8/aLVcfPAd0TE7Q5riwmwopJC5SxvsiyEZqqTHCG8wQkn6cZzXm6KqiHUaNI6z4Ga/FmHWzrFDlooI5OB4UH6QpHoCnk0IhFRixHcsrjM9tj7/uR0nrlXrZ+r7siS6uh/1rOwE56ydXLZznOiz7JC6uuJy1AXi6fR9wKBmo7nm662DFiP3qsoAtfAwLwXr9vhHnFpOnqq4BK1M9DyFO/VH30f+E3Ph7yi2jvrds36+YlW0tZ6603n8sXI91OvfFXz0Vl/VWQ22LIfXN54by/Ac4kmGZUUlbkT6yomRwcerqTJ4WNRBXwBC823zCuEQMsQEaQAvqnoUJpj8UirtV4Htud4On+LBsKiom/LHtTErVxufY573qHuqGIzX9JS7wOQnZzTPDSVKC+oYPXhp/26qv5EhqqhBQYgxCFminR3FSXEOizVCjKDNEPTDDuLUOfbhO/Mvv6/26bTwNqIM8kuyx6uuWUGHCOCXMjtf6qrRaivcUnUlALPDh+51jfx5WuP6FxQ29QecqIaf4r6CY6BUlv/CTI=
