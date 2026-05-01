@@ -11,15 +11,15 @@
  * rights and limitations under the License.
  */
 buildscript {
-    version "5.2.5"
+    version "5.2.5-nbn-PLUGIN-0.0.0-SNAPSHOT"
     group "au.org.ala"
 }
 
 plugins {
     id "groovy"
     id "org.grails.grails-gsp"
-    id "org.grails.grails-web"
-    id "war"
+    id "org.grails.grails-plugin"
+//    id "war"
     id "idea"
     id "com.bertramlabs.asset-pipeline"
     id "application"
@@ -31,7 +31,7 @@ publishing {
     repositories {
         maven {
             name 'Nexus'
-            url "https://nexus.ala.org.au/content/repositories/${project.version.endsWith('-SNAPSHOT') ? 'snapshots' : 'releases'}"
+            url "https://repository.gbif.org/repository/${project.version.endsWith('-SNAPSHOT') ? 'uk-nbn-snapshots' : 'uk-nbn-releases' }"
             credentials {
                 username = System.getenv('TRAVIS_DEPLOY_USERNAME')
                 password = System.getenv('TRAVIS_DEPLOY_PASSWORD')
@@ -40,14 +40,14 @@ publishing {
     }
     publications {
         mavenJar(MavenPublication) {
-            artifact bootWar
+            from components.java
         }
     }
 }
 
-bootWar {
-    launchScript()
-}
+//bootWar {
+//    launchScript()
+//}
 
 repositories {
     mavenLocal()
@@ -157,10 +157,10 @@ dependencies {
     testImplementation "org.grails:grails-web-testing-support"
 }
 
-bootRun {
-    mainClass = 'au.org.ala.alerts.Application'
-    jvmArgs = ['-Duser.timezone=UTC']
-}
+//bootRun {
+//    mainClass = 'au.org.ala.alerts.Application'
+//    jvmArgs = ['-Duser.timezone=UTC']
+//}
 //
 //bootRun {
 //    ignoreExitValue true
@@ -198,17 +198,17 @@ assets {
 }
 
 
-bootWar {
-    manifest {
-        attributes 'Start-Class': 'au.org.ala.alerts.Application'
-    }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    dependsOn(compileGroovyPages)
-}
-
-war {
-    dependsOn(compileGroovyPages)
-}
+//bootWar {
+//    manifest {
+//        attributes 'Start-Class': 'au.org.ala.alerts.Application'
+//    }
+//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//    dependsOn(compileGroovyPages)
+//}
+//
+//war {
+//    dependsOn(compileGroovyPages)
+//}
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17

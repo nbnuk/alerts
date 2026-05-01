@@ -10,6 +10,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 @EnableAutoConfiguration
 class Application extends GrailsAutoConfiguration {
     static void main(String[] args) {
-        GrailsApp.run(Application, args)
+//        GrailsApp.run(Application, args)
     }
 }

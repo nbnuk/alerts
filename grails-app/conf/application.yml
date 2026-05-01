@@ -25,7 +25,7 @@ grails:
     mail:
         port: 2525
         server: localhost
-    profile: web
+    profile: web-plugin
     cache:
         clearAtStartup: true
         ehcache:
