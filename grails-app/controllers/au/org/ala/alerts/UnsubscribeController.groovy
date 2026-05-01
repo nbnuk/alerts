@@ -1,9 +1,9 @@
 package au.org.ala.alerts
 
 import grails.gorm.transactions.Transactional
-import org.apache.http.HttpStatus
+import io.micronaut.http.HttpStatus
 
-@Transactional
+
 class UnsubscribeController {
 
     static allowedMethods = [index: "GET", unsubscribe: "POST"]
@@ -16,7 +16,7 @@ class UnsubscribeController {
         Map userAndNotifications = findUserAndNotificationsForToken(params.token)
 
         if (!userAndNotifications?.user) {
-            response.status = HttpStatus.SC_BAD_REQUEST
+            response.status = HttpStatus.BAD_REQUEST.code
             flash.message = message(code: 'email.unsubscribe.fail.alreadyunsubscribed', default: 'Unable to unsubscribe. You may have already unsubscribed.')
             render view: '../error'
         } else {
@@ -24,11 +24,12 @@ class UnsubscribeController {
         }
     }
 
+    @Transactional
     def unsubscribe() {
         Map userAndNotifications = findUserAndNotificationsForToken(params.token)
 
         if (!userAndNotifications?.user) {
-            response.status = HttpStatus.SC_BAD_REQUEST
+            response.status = HttpStatus.BAD_REQUEST.code
             flash.message = message(code: 'email.unsubscribe.fail.alreadyunsubscribed', default: 'Unable to unsubscribe. You may have already unsubscribed.')
             render view: '../error'
         } else {
@@ -39,10 +40,8 @@ class UnsubscribeController {
                 userAndNotifications.user.save(flush: true)
 
                 // for my annotation, we also need to delete the query and query result
-                String myAnnotationQueryPath = queryService.constructMyAnnotationQueryPath(userAndNotifications.user.userId)
-                if (userAndNotifications.notifications.any { it.query.queryPath == myAnnotationQueryPath }) {
-                    notificationService.unsubscribeMyAnnotation(userAndNotifications.user)
-                }
+                notificationService.unsubscribeMyAnnotation(userAndNotifications.user)
+
                 render view: "unsubscribed"
             }
         }

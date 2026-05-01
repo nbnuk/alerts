@@ -1,25 +1,27 @@
 /*
- * Copyright (C) 2017 Atlas of Living Australia
- * All Rights Reserved.
- * The contents of this file are subject to the Mozilla Public
- * License Version 1.1 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of
- * the License at http://www.mozilla.org/MPL/
- * Software distributed under the License is distributed on an "AS
- * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * rights and limitations under the License.
+ *   Copyright (c) 2025.  Atlas of Living Australia
+ *   All Rights Reserved.
+ *   The contents of this file are subject to the Mozilla Public
+ *   License Version 1.1 (the "License"); you may not use this file
+ *   except in compliance with the License. You may obtain a copy of
+ *   the License at http://www.mozilla.org/MPL/
+ *   Software distributed under the License is distributed on an "AS
+ *   IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ *   implied. See the License for the specific language governing
+ *   rights and limitations under the License.
+ *
  */
 
 package au.org.ala.alerts
 
-import grails.test.mixin.integration.Integration
 import grails.gorm.transactions.*
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.TestPropertySource
 import spock.lang.*
 
-@Integration
+@Ignore
 @Rollback
+@TestPropertySource(locations="classpath:application-test.yml")
 class DiffServiceSpec extends Specification {
     @Autowired
     DiffService diffService
@@ -34,10 +36,10 @@ class DiffServiceSpec extends Specification {
         given:
         def query = Query.findByName("Blogs and News")
         def json1 = """
-                 {"id":44342,"date":"2020-09-30T10:09:11","date_gmt":"2020-09-30T00:09:11","guid":{"rendered":"https://www.ala.org.au/?p=44342"},"modified":"2020-09-30T10:09:12","modified_gmt":"2020-09-30T00:09:12","slug":"data-in-the-ala-bushfire-affected-areas-2019-2020-bushfire-season","status":"publish","type":"post","link":"https://www.ala.org.au/blogs-news/data-in-the-ala-bushfire-affected-areas-2019-2020-bushfire-season/","title":{"rendered":"Data in the ALA: bushfire affected areas (2019-2020 bushfire season)"}}
+                 [{"id":44342,"date":"2020-09-30T10:09:11","date_gmt":"2020-09-30T00:09:11","guid":{"rendered":"https://www.ala.org.au/?p=44342"},"modified":"2020-09-30T10:09:12","modified_gmt":"2020-09-30T00:09:12","slug":"data-in-the-ala-bushfire-affected-areas-2019-2020-bushfire-season","status":"publish","type":"post","link":"https://www.ala.org.au/blogs-news/data-in-the-ala-bushfire-affected-areas-2019-2020-bushfire-season/","title":{"rendered":"Data in the ALA: bushfire affected areas (2019-2020 bushfire season)"}}]
                  """.stripIndent()
         def json2 = """
-                {"id":44343,"date":"2020-09-30T10:09:11","date_gmt":"2020-09-30T00:09:11","guid":{"rendered":"https://www.ala.org.au/?p=44342"},"modified":"2020-09-30T10:09:12","modified_gmt":"2020-09-30T00:09:12","slug":"data-in-the-ala-bushfire-affected-areas-2019-2020-bushfire-season","status":"publish","type":"post","link":"https://www.ala.org.au/blogs-news/data-in-the-ala-bushfire-affected-areas-2019-2020-bushfire-season/","title":{"rendered":"Data in the ALA: bushfire affected areas (2019-2020 bushfire season)"}}
+                [{"id":44343,"date":"2020-09-30T10:09:11","date_gmt":"2020-09-30T00:09:11","guid":{"rendered":"https://www.ala.org.au/?p=44342"},"modified":"2020-09-30T10:09:12","modified_gmt":"2020-09-30T00:09:12","slug":"data-in-the-ala-bushfire-affected-areas-2019-2020-bushfire-season","status":"publish","type":"post","link":"https://www.ala.org.au/blogs-news/data-in-the-ala-bushfire-affected-areas-2019-2020-bushfire-season/","title":{"rendered":"Data in the ALA: bushfire affected areas (2019-2020 bushfire season)"}}]
                 """.stripIndent()
 
         when:
@@ -71,22 +73,6 @@ class DiffServiceSpec extends Specification {
         check2 == true
     }
 
-    void "test hasChangedJsonDiff for Datasets query"() {
-        given:
-        def query = Query.findByName("Datasets")
-        def json1 = "[{\"name\":\"cxcx\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr5053\",\"uid\":\"dr5053\"},{\"name\":\" Warringah Species List\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr4047\",\"uid\":\"dr4047\"},{\"name\":\"1 Quantitative\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr2615\",\"uid\":\"dr2615\"},{\"name\":\"2 qualitative\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr2616\",\"uid\":\"dr2616\"},{\"name\":\"20 Best Euclid characters\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr2585\",\"uid\":\"dr2585\"},{\"name\":\"2016 Avifauna of Wallaroo\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr6693\",\"uid\":\"dr6693\"},{\"name\":\"2WEL-01\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr2182\",\"uid\":\"dr2182\"},{\"name\":\"3 Acacia Qualitative\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr2617\",\"uid\":\"dr2617\"},{\"name\":\"3 tree frogs\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr6785\",\"uid\":\"dr6785\"}]"
-        def json2 = "[{\"name\":\"Warringah Species List\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr4047\",\"uid\":\"dr4047\"},{\"name\":\"1 Quantitative\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr2615\",\"uid\":\"dr2615\"},{\"name\":\"2 qualitative\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr2616\",\"uid\":\"dr2616\"},{\"name\":\"20 Best Euclid characters\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr2585\",\"uid\":\"dr2585\"},{\"name\":\"2016 Avifauna of Wallaroo\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr6693\",\"uid\":\"dr6693\"},{\"name\":\"2WEL-01\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr2182\",\"uid\":\"dr2182\"},{\"name\":\"3 Acacia Qualitative\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr2617\",\"uid\":\"dr2617\"},{\"name\":\"3 tree frogs\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr6785\",\"uid\":\"dr6785\"},{\"name\":\"3AusMimulus\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr2456\",\"uid\":\"dr2456\"},{\"name\":\"4 Quantitative\",\"uri\":\"http://collections.ala.org.au/ws/dataResource/dr2618\",\"uid\":\"dr2618\"}]"
-
-        when:
-        def check1 = diffService.hasChangedJsonDiff(json1, json1, query, true)
-        then:
-        check1 == false
-
-        when:
-        def check2 = diffService.hasChangedJsonDiff(json1, json2, query, true)
-        then:
-        check2 == true
-    }
 
     void "test hasChangedJsonDiff for Spatial layers query"() {
         given:

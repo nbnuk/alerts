@@ -30,17 +30,32 @@ class UrlMappings {
         "/admin/unsubscribeAllUsers"(controller: 'admin', action: 'unsubscribeAllUsers')
         "/admin/deleteQuery"(controller: 'admin', action: 'deleteQuery')
 
+        group "/biosecurity/csv", {
+            "/"(namespace: "biosecurity",controller: "csv", action: "list")
+            "/download"(namespace: "biosecurity",controller: "csv", action: "download")
+            "/delete"(namespace: "biosecurity",controller: "csv", action: "delete")
+            "/aggregate"(namespace: "biosecurity",controller: "csv", action: "aggregate")
+            "/download/async/$name?"(namespace: "biosecurity",controller: "csv", action: "asyncAggregate")
+            "/download/token/$token"(namespace: "biosecurity",controller: "csv", action: "downloadWithToken")
+            "/downloads"(namespace: "biosecurity",controller: "csv", action: "downloads")
+        }
+
+
+        "/ws/alerts/user/$userId"(controller: 'webservice', action: 'getUserAlerts')
+        "/ws/noauth/$action"(controller: 'webservice')
+        "/ws/$action?/$id?"(controller: 'webservice')
+
+        "/"(controller: 'notification', action: 'index')
+
+        "/admin/log"(controller: 'log', action: 'index')
+        "/admin/log/update"(controller: 'log', action: 'update', method: 'PUT')
+        "/admin/log/delete/$id?"(controller: 'log', action: 'delete', method: 'DELETE')
+
         "/$controller/$action?/$id?(.$format)?"{
             constraints {
                 // apply constraints here
             }
         }
-
-        "/ws/alerts/user/$userId"(controller: 'webservice', action: 'getUserAlerts')
-        "/ws/$action"(controller: 'webservice')
-        "/ws/noauth/$action"(controller: 'webservice')
-
-        "/"(controller: 'notification', action: 'index')
 
         // 13/4/16 existing production config puts all ws/.* requests through CAS (even /ws/noauth!), which is fine if
         // they are always invoked via javascript (and have the CAS cookie), but doesn't work when invoked from a service.
@@ -51,9 +66,11 @@ class UrlMappings {
         "/api/alerts/user/$userId"(controller: 'webservice', action: [GET: 'getUserAlertsWS'])
 
         "/robots.txt"(view:'/notFound')
-        "400"(view:'/error')
-        "403"(view:'/error')
+
+        "401"(view:'/unauthorised')
         "404"(view:'/notFound')
+        "403"(view:'/error')
+        "400"(view:'/error')
         "405"(view:'/error')
         "500"(view:'/error')
     }

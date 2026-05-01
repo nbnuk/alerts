@@ -15,27 +15,37 @@ package au.org.ala.alerts
 
 import au.ala.org.ws.security.RequireApiKey
 import au.org.ala.plugins.openapi.Path
+import au.org.ala.web.AlaSecured
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.converters.JSON
 import grails.gorm.transactions.Transactional
+import grails.util.Holders
 import grails.web.servlet.mvc.GrailsParameterMap
+import io.micronaut.http.HttpStatus
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
-import org.apache.http.HttpStatus
+import org.apache.commons.lang3.time.DateUtils
+import java.text.SimpleDateFormat
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER
 
 @Transactional
 class WebserviceController {
 
     def queryService
+    def queryResultService
     def userService
     def notificationService
+    def biosecurityService
+    def messageSource
+    def siteLocale = new Locale.Builder().setLanguageTag(Holders.config.siteDefaultLanguage as String).build()
+    def CUSTOM_ALERTS_URL = grailsApplication.config.grails.serverURL+"/notification/myAlerts#custom-alerts"
 
     def index = {}
     def test = {}
@@ -96,6 +106,7 @@ class WebserviceController {
 
             Query newQuery = queryService.createTaxonQuery(taxonGuid, params.taxonName)
             queryService.createQueryForUserIfNotExists(newQuery, userService.getUser())
+            params.redirect = CUSTOM_ALERTS_URL
             redirectIfSupplied(params)
         } else {
             response.sendError(400)
@@ -191,6 +202,7 @@ class WebserviceController {
             //region + species group
             Query newQuery = queryService.createBioCacheChangeQuery(params.webserviceQuery, params.uiQuery, params.queryDisplayName, params.baseUrlForWS, params.baseUrlForUI, params.resourceName)
             queryService.createQueryForUserIfNotExists(newQuery, userService.getUser())
+            params.redirect = CUSTOM_ALERTS_URL
             redirectIfSupplied(params)
         } else {
             response.sendError(400)
@@ -232,6 +244,7 @@ class WebserviceController {
             //region + species group
             Query newQuery = queryService.createBioCacheAnnotationQuery(params.webserviceQuery, params.uiQuery, params.queryDisplayName, params.baseUrlForWS, params.baseUrlForUI, params.resourceName)
             queryService.createQueryForUserIfNotExists(newQuery, userService.getUser())
+            params.redirect = CUSTOM_ALERTS_URL
             redirectIfSupplied(params)
         } else {
             response.sendError(400)
@@ -272,6 +285,7 @@ class WebserviceController {
             //region + species group
             Query newQuery = queryService.createBioCacheQuery(params.webserviceQuery, params.uiQuery, params.queryDisplayName, params.baseUrlForWS, params.baseUrlForUI, params.resourceName)
             queryService.createQueryForUserIfNotExists(newQuery, userService.getUser())
+            params.redirect = CUSTOM_ALERTS_URL
             redirectIfSupplied(params)
         } else {
             response.sendError(400)
@@ -311,6 +325,7 @@ class WebserviceController {
             //region + species group
             Query newQuery = queryService.createRegionQuery(params.layerId, params.regionName)
             queryService.createQueryForUserIfNotExists(newQuery, userService.getUser())
+            params.redirect = CUSTOM_ALERTS_URL
             redirectIfSupplied(params)
         } else {
             response.sendError(400)
@@ -324,6 +339,7 @@ class WebserviceController {
             //region + taxon
             Query newQuery = queryService.createTaxonRegionQuery(params.taxonGuid, params.taxonName, params.layerId, params.regionName)
             queryService.createQueryForUserIfNotExists(newQuery, userService.getUser())
+            params.redirect = CUSTOM_ALERTS_URL
             redirectIfSupplied(params)
         } else {
             response.sendError(400)
@@ -335,6 +351,7 @@ class WebserviceController {
             //region + species group
             Query newQuery = queryService.createSpeciesGroupRegionQuery(params.speciesGroup, params.layerId, params.regionName)
             queryService.createQueryForUserIfNotExists(newQuery, userService.getUser())
+            params.redirect = CUSTOM_ALERTS_URL
             redirectIfSupplied(params)
         } else {
             response.sendError(400)
@@ -356,6 +373,7 @@ class WebserviceController {
         redirectIfSupplied(params)
     }
 
+
     @Operation(
             method = "POST",
             tags = "alerts",
@@ -366,7 +384,10 @@ class WebserviceController {
                     @Parameter(name = "userId",
                             in = PATH,
                             required = true,
-                            description = "userId")
+                            description = "userId"),
+                    @Parameter(name = "Authorization",
+                            in = HEADER,
+                            required = true)
             ],
             responses = [
                     @ApiResponse(
@@ -386,8 +407,8 @@ class WebserviceController {
     @Path("api/alerts/user/{userId}/unsubscribe")
     def deleteAllAlertsForUser() {
         if (!params.userId) {
-            response.status = HttpStatus.SC_BAD_REQUEST
-            response.sendError(HttpStatus.SC_BAD_REQUEST, "userId is a required parameter")
+            response.status = HttpStatus.BAD_REQUEST.code
+            response.sendError(HttpStatus.BAD_REQUEST.code, "userId is a required parameter")
         } else {
             def user = userService.getUserById(params.userId)
 
@@ -401,8 +422,8 @@ class WebserviceController {
 
                 render([success: true] as JSON)
             } else {
-                response.status = HttpStatus.SC_NOT_FOUND
-                response.sendError(HttpStatus.SC_NOT_FOUND, "Unable to find user with userId ${params.userId}")
+                response.status = HttpStatus.NOT_FOUND.code
+                response.sendError(HttpStatus.NOT_FOUND.code, "Unable to find user with userId ${params.userId}")
             }
         }
     }
@@ -429,7 +450,10 @@ class WebserviceController {
                     @Parameter(name = "lastName",
                             in = QUERY,
                             required = false,
-                            description = "lastName")
+                            description = "lastName"),
+                    @Parameter(name = "Authorization",
+                            in = HEADER,
+                            required = true)
             ],
             responses = [
                     @ApiResponse(
@@ -449,16 +473,16 @@ class WebserviceController {
     @Path("api/alerts/user/createAlerts")
     def createUserAlerts() {
         if (!params.userId) {
-            response.status = HttpStatus.SC_BAD_REQUEST
-            response.sendError(HttpStatus.SC_BAD_REQUEST, "userId is a required parameter")
+            response.status = HttpStatus.BAD_REQUEST.code
+            response.sendError(HttpStatus.BAD_REQUEST.code, "userId is a required parameter")
         } else {
             def user = userService.getUserById(params.userId)
             if (!user) {
                 Map userDetails = ["userId": params.userId, "email": params.email, "userDisplayName": params.firstName + " " + params.lastName]
                 user = userService.getUser(userDetails)
-                response.status = HttpStatus.SC_CREATED
+                response.status = HttpStatus.CREATED.code
             } else {
-                response.status = HttpStatus.SC_OK
+                response.status = HttpStatus.OK.code
             }
 
             def notificationInstanceList = Notification.findAllByUser(user)
@@ -486,7 +510,10 @@ class WebserviceController {
                     @Parameter(name = "userId",
                             in = PATH,
                             required = true,
-                            description = "userId")
+                            description = "userId"),
+                    @Parameter(name = "Authorization",
+                            in = HEADER,
+                            required = true)
             ],
             responses = [
                     @ApiResponse(
@@ -507,7 +534,7 @@ class WebserviceController {
     def getUserAlertsWS() {
         User user = userService.getUserById(params.userId)
         if (user == null) {
-            response.status = HttpStatus.SC_NOT_FOUND
+            response.status = HttpStatus.NOT_FOUND.code
             render ([error : "can't find a user with userId " + params.userId] as JSON)
         } else {
             render(userService.getUserAlertsConfig(user) as JSON)
@@ -524,7 +551,10 @@ class WebserviceController {
                     @Parameter(name = "userId",
                             in = PATH,
                             required = true,
-                            description = "userId")
+                            description = "userId"),
+                    @Parameter(name = "Authorization",
+                            in = HEADER,
+                            required = true)
             ],
             responses = [
                     @ApiResponse(
@@ -538,15 +568,19 @@ class WebserviceController {
                             ]
                     )
             ],
-            security = [@SecurityRequirement(name = 'openIdConnect')],
-            hidden = true
+            security = [@SecurityRequirement(name = 'openIdConnect')]
+            // hidden = grailsApplication.config.myannotation.enabled
     )
     @RequireApiKey
     @Path("api/alerts/user/{userId}/subscribeMyAnnotation")
     def subscribeMyAnnotationWS() {
+        if (!grailsApplication.config.myannotation.enabled) {
+            return
+        }
+
         User user = userService.getUser((String)params.userId)
         if (user == null) {
-            response.status = HttpStatus.SC_NOT_FOUND
+            response.status = HttpStatus.NOT_FOUND.code
             render ([error : "can't find a user with userId " + params.userId] as JSON)
 
         } else {
@@ -569,7 +603,10 @@ class WebserviceController {
                     @Parameter(name = "userId",
                             in = PATH,
                             required = true,
-                            description = "userId")
+                            description = "userId"),
+                    @Parameter(name = "Authorization",
+                            in = HEADER,
+                            required = true)
             ],
             responses = [
                     @ApiResponse(
@@ -583,15 +620,19 @@ class WebserviceController {
                             ]
                     )
             ],
-            security = [@SecurityRequirement(name = 'openIdConnect')],
-            hidden = true
+            security = [@SecurityRequirement(name = 'openIdConnect')]
+            // hidden = grailsApplication.config.myannotation.enabled
     )
     @RequireApiKey
     @Path("api/alerts/user/{userId}/unsubscribeMyAnnotation")
     def unsubscribeMyAnnotationWS() {
+        if (!grailsApplication.config.myannotation.enabled) {
+            return
+        }
+
         User user = userService.getUserById(params.userId)
         if (user == null) {
-            response.status = HttpStatus.SC_NOT_FOUND
+            response.status = HttpStatus.NOT_FOUND.code
             render ([error : "can't find a user with userId " + params.userId] as JSON)
         } else {
             try {
@@ -602,6 +643,183 @@ class WebserviceController {
             }
         }
     }
+
+    /**
+     * @param id query id
+     * @return the logs from the query result for the given query id
+     */
+    @AlaSecured(value = ['ROLE_ADMIN', 'ROLE_BIOSECURITY_ADMIN'], anyRole = true)
+    def getQueryLogs() {
+        def query = Query.get(params.id)
+        if (query) {
+            def logs = query.getLogs(params.frequency)
+            render logs as JSON
+        } else {
+            render([status: 1, message: "Query not found"] as JSON)
+        }
+    }
+
+    @AlaSecured(value = ['ROLE_ADMIN', 'ROLE_BIOSECURITY_ADMIN'], anyRole = true)
+    def searchBiosecuritySubscriptions() {
+       def results =  queryService.searchBiosecuritySubscriptions(params.q)
+       render results as JSON
+    }
+
+    /**
+     * API call to render the biosecurity subscribers
+     *
+     * @param queryId
+     * @return
+     */
+    @AlaSecured(value = ['ROLE_ADMIN', 'ROLE_BIOSECURITY_ADMIN'], anyRole = true)
+    def getBiosecuritySubscribers() {
+        def subscribers = queryService.getSubscribers(Long.valueOf(params.queryId))
+        render view: "/admin/_bioSecuritySubscribers", model: [queryid: params.queryId, subscribers: subscribers]
+    }
+
+    /**
+     * API call
+     *
+     * Subscribe users/emails to a biosecurity query
+     * @return
+     */
+    @AlaSecured(value = ['ROLE_ADMIN', 'ROLE_BIOSECURITY_ADMIN'], anyRole = true)
+    def addSubscribers() {
+        def result = [:]
+        if ((!params.listid || params.listid.allWhitespace) && !params.queryid) {
+            result = [status: 1, message: messageSource.getMessage("biosecurity.view.error.emptyspeciesid", null, "Species list uid can't be empty.", siteLocale)]
+        } else if (!params.useremails || params.useremails.allWhitespace) {
+            result = [status: 1, message: messageSource.getMessage("biosecurity.view.error.emptyemails", null, "User emails can't be empty.", siteLocale)]
+        } else {
+            def delimiters = /[\s\|;,]/
+            String[] emails = ((String)params.useremails).split(delimiters).findAll { it?.trim() }
+            Map usermap = emails?.collectEntries{[it.trim(), userService.getUserByEmailOrCreate(it.trim())]}
+            def invalidEmails = []
+            usermap.each {entry ->
+                if (entry.value == null) {
+                    invalidEmails.add(entry.key)
+                } else {
+                    if (params.queryid) {
+                        queryService.createQueryForUserIfNotExists(Query.get(params.queryid), entry.value as User, true)
+                    } else {
+                        queryService.subscribeBioSecurity(entry.value as User, params.listid.trim())
+                    }
+                }
+            }
+            if (invalidEmails) {
+                result =[status:1, message: messageSource.getMessage("biosecurity.view.error.invalidemails", [invalidEmails.join(", ")] as Object[], "Users with emails: {0} are not found in the system.", siteLocale)]
+            } else {
+                result = [status: 0]
+            }
+        }
+        render(result as JSON)
+    }
+
+    /**
+     * API call
+     * Unsubscribe user from a query by an Admin
+     *
+     * @param userId  the sequence id of the user. If not provided, it will use the email to find the user
+     * @param useremail
+     * @param queryid
+     *
+     * @return
+     */
+    @AlaSecured(value = ['ROLE_ADMIN', 'ROLE_BIOSECURITY_ADMIN'], anyRole = true)
+    def unsubscribeBiosecurity() {
+        def result = [:]
+        if (!params.useremail || params.useremail.allWhitespace) {
+            result = [status: 1, message: messageSource.getMessage("unsubscribeusers.controller.error.emptyemail", null, "User email can't be empty.", siteLocale)]
+        } else if (!params.queryid || params.queryid.allWhitespace) {
+            result = [status: 1, message: messageSource.getMessage("unsubscribeusers.controller.error.emptyqueryid", null, "Query Id can't be empty.", siteLocale)]
+        } else {
+            try {
+                User user
+                if (params.userid) {
+                    def userId = params.userid as Long
+                    user = userService.getUserBySequeceId(userId);
+                } else {
+                    //todo - identify why duplicate users are occasionally created
+                    user = userService.getUserByEmail(params.useremail.trim())
+                }
+
+                if (user) {
+                    notificationService.deleteAlertForUser(user, Long.valueOf(params.queryid))
+                    result = [status : 0]
+                } else {
+                    result = [status: 1, message: messageSource.getMessage('unsubscribeusers.controller.error.emailnotfound', [params.useremail] as Object[], "User with email: {0} are not found in the system.", siteLocale)]
+                }
+            } catch (Exception e) {
+                log.error("Error getting user : ${params.userid}", e)
+                result = [status : 1, message: "Error getting user : ${params.userid}"]
+            }
+        }
+        render(result as JSON)
+    }
+
+    /**
+     * Triggers the process of refreshing subscriptions.
+     * Retrieves all subscriptions, iterates over each subscription,
+     * checks for new records since the last check, and sends alert emails to subscribers
+     */
+    @AlaSecured(value = ['ROLE_ADMIN', 'ROLE_BIOSECURITY_ADMIN'], anyRole = true)
+    def triggerBiosecurityAlerts () {
+        def result = biosecurityService.biosecurityAlerts()
+        render(result as JSON)
+    }
+
+    /**
+     * Triggers the process of refreshing subscriptions since last check.
+     * Retrieves all subscriptions, iterates over each subscription,
+     * checks for new records since the last check, and sends alert emails to subscribers
+     *
+     * All dates should be UTC
+     */
+    @AlaSecured(value = ['ROLE_ADMIN', 'ROLE_BIOSECURITY_ADMIN'], anyRole = true)
+    def triggerBiosecurityAlert (int id) {
+        def query = Query.get(id)
+        if (query) {
+            //todo - review the lastCheck date
+            //If lastCheck is null, then set it to 7 days before
+            Date lastChecked = queryService.getLastCheckedDate(query)
+            if (lastChecked == null) {
+                lastChecked = DateUtils.addDays(new Date(), -7 )
+            }
+
+            def result = biosecurityService.triggerBiosecuritySubscription(query, lastChecked)
+            render(result as JSON)
+
+        } else {
+            render([status: 1, message: "Query not found"] as JSON)
+        }
+    }
+    /**
+     *
+     * It searches the records of given query back from the given date
+     * And it also set the last checked date to the given date
+     *
+     * For example, if we set date = 2023-05-01, it will return the records from 2023-05-01 to now, and set the lastCheck date to 2023-05-01
+     *
+     * @param id
+     * @param since  The date is from the JS calendar, it only has CURRENT Date part, no time part
+     * @return
+     */
+    @AlaSecured(value = ['ROLE_ADMIN', 'ROLE_BIOSECURITY_ADMIN'], anyRole = true)
+    def triggerBiosecurityAlertSince (int id) {
+        String localDateString = params.since
+        def query = Query.get(id)
+        if (query) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd")
+            Date since = sdf.parse(localDateString)
+
+            def result = biosecurityService.triggerBiosecuritySubscription(query, since)
+            render(result as JSON)
+
+        } else {
+            render([status: 1, message: "Query not found"] as JSON)
+        }
+    }
+
 
     // classes used for the OpenAPI definition generator
     @JsonIgnoreProperties('metaClass')

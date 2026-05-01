@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Atlas of Living Australia
+ * Copyright (C) 2024 Atlas of Living Australia
  * All Rights Reserved.
  * The contents of this file are subject to the Mozilla Public
  * License Version 1.1 (the "License"); you may not use this file
@@ -12,8 +12,6 @@
  */
 
 package au.org.ala.alerts
-
-import au.org.ala.userdetails.UserDetailsFromIdListRequest
 import au.org.ala.userdetails.UserDetailsFromIdListResponse
 import au.org.ala.web.UserDetails
 import grails.converters.JSON
@@ -21,9 +19,6 @@ import grails.plugin.cache.Cacheable
 import grails.util.Holders
 import grails.util.Environment
 
-import grails.gorm.transactions.Transactional
-
-@Transactional
 class UserService {
 
     static transactional = true
@@ -32,15 +27,24 @@ class UserService {
 
     def siteLocale = new Locale.Builder().setLanguageTag(Holders.config.siteDefaultLanguage as String).build()
 
-    def getUserAlertsConfig(User user) {
+    Map getUserAlertsConfig(User user) {
 
         log.debug('getUserAlertsConfig - Viewing my alerts :  ' + user)
-
         //enabled alerts
         def notificationInstanceList = Notification.findAllByUser(user)
 
         //split into custom and non-custom...
-        def enabledQueries = notificationInstanceList.collect { it.query }
+        //in case some queries which were removed
+        def enabledQueries = notificationInstanceList.findAll { it?.query != null }
+                .collect { it.query }
+                .findAll { query ->
+                    try {
+                        Query.get(query.id) != null
+                    } catch (Exception e) {
+                        false
+                    }
+                }
+
         def enabledIds = enabledQueries.collect { it.id }
 
         // all standard queries + 'my annotations' queries
@@ -75,12 +79,16 @@ class UserService {
      *
      * @return total number of updates
      */
-//    @Transactional // transactions handled manually
+
     int updateUserEmails() {
         final int pageSize = grailsApplication.config.getProperty('alerts.user-sync.batch-size', Integer, 1000)
         def toUpdate = []
-        def total = User.count()
-        log.warn "Checking all ${total} users in Alerts user table."
+        int total = 0
+        User.withTransaction {
+            total = User.count()
+            log.warn "Checking all ${total} users in Alerts user table."
+        }
+
         def count = 0
 
         def page = 0
@@ -109,8 +117,8 @@ class UserService {
                         if (userDetails) {
                             // update email
                             boolean update = false
-                            if (user.email != userDetails.userName) {
-                                user.email = userDetails.userName
+                            if (user.email != userDetails.email) {
+                                user.email = userDetails.email
                                 log.debug "Updating email address for user ${user.userId}: ${userDetails.userName}"
                                 update = true
                             }
@@ -164,7 +172,7 @@ class UserService {
         log.debug "getUser - userDetails = ${userDetails}"
 
         if (!userDetails?.userId) {
-            log.error "User isn't logged in - or there is a problem with CAS configuration"
+            log.error("User isn't logged in - or there is a problem with CAS configuration")
             return null
         }
 
@@ -173,12 +181,27 @@ class UserService {
         if (user == null) {
             log.debug "User is not in user table - creating new record for " + userDetails
             user = new User([email: userDetails.email, userId: userDetails.userId, locked: userDetails.locked, frequency: Frequency.findByName("weekly")])
-            user.save(flush: true, failOnError: true)
-            // new user gets "Blogs and News" weekly by default (opt out)
-            def notificationInstance = new Notification()
-            notificationInstance.query = Query.findByName(messageSource.getMessage("query.ala.blog.title", null, siteLocale))
-            notificationInstance.user = user
-            notificationInstance.save(flush: true)
+            User.withTransaction {
+                if (!user.save(flush: true, failOnError: true)) {
+                    user.errors.allErrors.each {
+                        log.error(it)
+                    }
+                }
+            }
+
+            if (grailsApplication.config.getProperty('useBlogsAlerts', Boolean, true)) {
+                // new user gets "Blogs and News" weekly by default (opt out)
+                def notificationInstance = new Notification()
+                notificationInstance.query = Query.findByName(messageSource.getMessage("query.ala.blog.title", null, siteLocale))
+                notificationInstance.user = user
+                Notification.withTransaction {
+                    if (!notificationInstance.save(flush: true)) {
+                        notificationInstance.errors.allErrors.each {
+                            log.error(it)
+                        }
+                    }
+                }
+            }
         }
         user
     }
@@ -221,11 +244,31 @@ class UserService {
         if (userDetails?.userId && userDetails?.email) {
             log.debug "User is not in user table - creating new record for " + userDetails
             user = new User([email: userDetails.email, userId: userDetails.userId, locked: userDetails.locked, frequency: Frequency.findByName("weekly")])
-            user.save(flush: true, failOnError: true)
+            User.withTransaction {
+                if (!user.save(flush: true, failOnError: true)) {
+                    user.errors.allErrors.each {
+                        log.error(it)
+                    }
+                }
+            }
         }
         user
     }
 
+    /**
+     * Get user by sequence id
+     * @param id
+     * @return
+     */
+    User getUserBySequeceId(Long id) {
+        User.get(id)
+    }
+
+    /**
+     * Get user by userId
+     * @param userId ALA user id
+     * @return
+     */
     User getUserById(String userId) {
         User.findByUserId(userId)
     }

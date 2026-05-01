@@ -1,14 +1,14 @@
 package au.org.ala.alerts
 
 import au.org.ala.web.AlaSecured
+import grails.converters.JSON
 import grails.gorm.transactions.Transactional
 import grails.util.Holders
 import org.springframework.dao.DataIntegrityViolationException
 
-@Transactional
 class QueryController {
 
-    static allowedMethods = [save: "POST", update: "POST", update: "PUT", delete: "POST"]
+    static allowedMethods = [save: "POST", update: "POST", update: "PUT", delete: ["POST"]]
     def queryService
     def userService
     def notificationService
@@ -73,11 +73,13 @@ class QueryController {
         [queryInstanceList: Query.list(params), queryInstanceTotal: Query.count()]
     }
 
+    @Transactional
     @AlaSecured(value = 'ROLE_ADMIN', redirectController = 'notification', redirectAction = 'myAlerts', message = "You don't have permission to view that page.")
     def create() {
         [queryInstance: new Query(params)]
     }
 
+    @Transactional
     @AlaSecured(value = 'ROLE_ADMIN', redirectController = 'notification', redirectAction = 'myAlerts', message = "You don't have permission to view that page.")
     def save() {
         def queryInstance = new Query(params)
@@ -113,6 +115,7 @@ class QueryController {
         [queryInstance: queryInstance]
     }
 
+    @Transactional
     @AlaSecured(value = 'ROLE_ADMIN', redirectController = 'admin', redirectAction = 'index', message = "You don't have permission to update that record.")
     def update() {
         def queryInstance = Query.get(params.id)
@@ -188,5 +191,18 @@ class QueryController {
             }
         }
         redirect(action: "subscribers", params: [queryid: params.queryid])
+    }
+
+    @AlaSecured(value = 'ROLE_ADMIN', redirectController = 'admin', redirectAction = 'index', message = "You don't have permission to delete that query.")
+    def wipe() {
+        def result =[:]
+        if (params.id && (!params.id.allWhitespace)) {
+            def queryId = params.id as Integer
+            result = queryService.wipe(queryId)
+        } else {
+            result['status'] = 1
+            result['message'] = "Query id can't be empty."
+        }
+        render(result as JSON)
     }
 }

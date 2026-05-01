@@ -1,3 +1,8 @@
+<%--
+    TODO: POSSIBLY UNUSED PAGE
+    - No known links as of 2026-02
+    - Verify before removal
+--%>
 <%@ page import="au.org.ala.alerts.Notification" %>
 <html>
 <head>
@@ -7,13 +12,13 @@
   <title>My email alerts | ${grailsApplication.config.skin.orgNameLong}</title>
 </head>
 <body>
-<div id="content">
+<div>
   <header id="page-header">
     <div class="inner">
       <nav id="breadcrumb">
         <ol>
           <li><a href="${grailsApplication.config.ala?.baseURL?:'http://www.ala.org.au'}">Home</a></li>
-          <li><a href="${grailsApplication.config.security.cas.appServerName}/userdetails/myprofile">My Profile</a></li>
+          <li><a href="${grailsApplication.config.userdetails.web.url}/myprofile">My Profile</a></li>
           <li class="last">My email alerts</li>
         </ol>
       </nav>
