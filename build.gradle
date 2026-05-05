@@ -128,10 +128,10 @@ dependencies {
     implementation "software.amazon.awssdk:auth:2.40.8"
     implementation "software.amazon.awssdk:sso:2.40.8"
 
-    implementation "software.amazon.awssdk:s3"
-    implementation "software.amazon.awssdk:sts"
-    implementation "software.amazon.awssdk:auth"
-    implementation "software.amazon.awssdk:sso"
+//    implementation "software.amazon.awssdk:s3"
+//    implementation "software.amazon.awssdk:sts"
+//    implementation "software.amazon.awssdk:auth"
+//    implementation "software.amazon.awssdk:sso"
 
     //implementation 'commons-codec:commons-codec:1.17.1'
     implementation 'commons-io:commons-io:2.17.0'
