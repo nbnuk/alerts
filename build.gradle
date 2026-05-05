@@ -40,19 +40,6 @@ publishing {
     }
     publications {
         mavenJar(MavenPublication) {
-            pom.withXml {
-                def pomNode = asNode()
-                pomNode.dependencyManagement.replaceNode {}
-
-                // simply remove dependencies without a version
-                // version-less dependencies are handled with dependencyManagement
-                // see https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/8 for more complete solutions
-                pomNode.dependencies.dependency.findAll {
-                    it.version.text().isEmpty()
-                }.each {
-                    it.replaceNode {}
-                }
-            }
             from components.java
         }
     }
@@ -133,7 +120,14 @@ dependencies {
     implementation "au.org.ala.plugins:openapi:1.3.0"
     implementation "org.apache.commons:commons-lang3:3.14.0"
 
-    implementation platform("software.amazon.awssdk:bom:2.40.8") // same as ala-mail
+//    implementation platform("software.amazon.awssdk:bom:2.40.8") // same as ala-mail
+    // Avoid AWS BOM: it produces an invalid POM (duplicate <dependencyManagement>) during publishing.
+    // instead, add explict AWS dependencies
+    implementation "software.amazon.awssdk:s3:2.40.8"
+    implementation "software.amazon.awssdk:sts:2.40.8"
+    implementation "software.amazon.awssdk:auth:2.40.8"
+    implementation "software.amazon.awssdk:sso:2.40.8"
+
     implementation "software.amazon.awssdk:s3"
     implementation "software.amazon.awssdk:sts"
     implementation "software.amazon.awssdk:auth"
